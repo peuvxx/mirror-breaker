@@ -1,3 +1,5 @@
+// 💥 최종 수정된 script.js - 진짜로 제 위치에서 떨어지는 버전
+
 const video = document.getElementById('video');
 const overlay = document.getElementById('overlay');
 const ctx = overlay.getContext('2d');
@@ -41,6 +43,13 @@ document.addEventListener('keydown', (e) => {
 });
 
 // 클릭하면 깨짐 + 애니메이션 + 붕괴 조건 체크
+let hitCount = 0;
+let breakThreshold = getRandomThreshold();
+
+function getRandomThreshold() {
+  return Math.floor(Math.random() * 6) + 3; // 3~8번 클릭
+}
+
 document.addEventListener('click', (e) => {
   const x = e.pageX;
   const y = e.pageY;
@@ -60,18 +69,15 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// 깨짐 그래픽 그리기
 function drawCrack(x, y) {
-  const crackCount = Math.floor(Math.random() * 10) + 3; // 3~12개
+  const crackCount = Math.floor(Math.random() * 10) + 3;
 
   for (let i = 0; i < crackCount; i++) {
     const angle = Math.random() * Math.PI * 2;
     const length = 50 + Math.pow(Math.random(), 0.5) * 450;
-
     const curveOffset = 90;
     const controlX = x + Math.cos(angle) * (length / 2) + (Math.random() * curveOffset - curveOffset / 2);
     const controlY = y + Math.sin(angle) * (length / 2) + (Math.random() * curveOffset - curveOffset / 2);
-
     const endX = x + Math.cos(angle) * length;
     const endY = y + Math.sin(angle) * length;
 
@@ -84,89 +90,72 @@ function drawCrack(x, y) {
   }
 }
 
-// ===========================
-// 캠 붕괴 효과 (불규칙 파편)
-// ===========================
-
-let hitCount = 0;
-let breakThreshold = getRandomThreshold();
-
-function getRandomThreshold() {
-  return Math.floor(Math.random() * 6) + 3; // 3~8번 클릭
-}
-
 function breakReality() {
-    const wrapper = document.getElementById('cam-wrapper');
-    const captured = captureFrame(video);
-    const shardCount = Math.floor(Math.random() * 6) + 3; // 3~8 조각
-  
-    video.style.display = 'none';
-  
-    for (let i = 0; i < shardCount; i++) {
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.className = 'shard-canvas';
-      const shardCtx = canvas.getContext('2d');
-  
-      // 먼저 조각의 위치를 정하고
-      const offsetX = Math.random() * (window.innerWidth - canvas.width);
-      const offsetY = Math.random() * (window.innerHeight - canvas.height);
-  
-      canvas.style.position = 'absolute';
-      canvas.style.left = `${offsetX}px`;
-      canvas.style.top = `${offsetY}px`;
-      canvas.style.zIndex = 100;
-  
-      // 랜덤 다각형 경로 생성
-      const centerX = canvas.width / 2 + (Math.random() - 0.5) * 200;
-      const centerY = canvas.height / 2 + (Math.random() - 0.5) * 200;
-      const sides = 3 + Math.floor(Math.random() * 4); // 3~6각형
-      const angleStart = Math.random() * Math.PI * 2;
-  
-      shardCtx.beginPath();
-      for (let j = 0; j <= sides; j++) {
-        const angle = angleStart + j * (2 * Math.PI / sides);
-        const radius = 400 + Math.random() * 200;
-        const px = centerX + Math.cos(angle) * radius;
-        const py = centerY + Math.sin(angle) * radius;
-        if (j === 0) shardCtx.moveTo(px, py);
-        else shardCtx.lineTo(px, py);
-      }
-      shardCtx.closePath();
-      shardCtx.clip();
-  
-      // 이미지 생성 후, 위치 보정하여 그리기
-      const img = new Image();
-      img.onload = () => {
-        shardCtx.drawImage(img, -offsetX, -offsetY, canvas.width, canvas.height);
-      };
-      img.src = captured;
-  
-      // 떨어지는 애니메이션
-      setTimeout(() => {
-        canvas.style.transition = 'transform 1.2s ease, opacity 1.2s ease';
-        const dy = 1000 + Math.random() * 500;
-        canvas.style.transform = `translate(0px, ${dy}px)`;
-        canvas.style.opacity = 0;
-      }, 50);
-  
-      wrapper.appendChild(canvas);
+  const wrapper = document.getElementById('cam-wrapper');
+  const captured = captureFrame(video);
+  const shardCount = Math.floor(Math.random() * 6) + 3;
+
+  video.style.display = 'none';
+
+  for (let i = 0; i < shardCount; i++) {
+    const shard = document.createElement('canvas');
+    shard.width = window.innerWidth;
+    shard.height = window.innerHeight;
+    shard.className = 'shard-canvas';
+    shard.style.position = 'absolute';
+    shard.style.left = '0';
+    shard.style.top = '0';
+    shard.style.zIndex = 100;
+
+    const shardCtx = shard.getContext('2d');
+
+    // 랜덤한 파편 위치
+    const centerX = Math.random() * window.innerWidth;
+    const centerY = Math.random() * window.innerHeight;
+    const sides = 3 + Math.floor(Math.random() * 4);
+    const angleStart = Math.random() * Math.PI * 2;
+
+    shardCtx.beginPath();
+    for (let j = 0; j <= sides; j++) {
+      const angle = angleStart + j * (2 * Math.PI / sides);
+      const radius = 100 + Math.random() * 150;
+      const px = centerX + Math.cos(angle) * radius;
+      const py = centerY + Math.sin(angle) * radius;
+      if (j === 0) shardCtx.moveTo(px, py);
+      else shardCtx.lineTo(px, py);
     }
-  
+    shardCtx.closePath();
+    shardCtx.clip();
+
+    const img = new Image();
+    img.onload = () => {
+      shardCtx.drawImage(img, 0, 0, shard.width, shard.height);
+    };
+    img.src = captured;
+
+    wrapper.appendChild(shard);
+
+    // 낙하 애니메이션
     setTimeout(() => {
-      document.querySelectorAll('.shard-canvas').forEach(c => c.remove());
-      video.style.display = 'block';
-    }, 5000);
+        shard.style.transition = 'transform 2.8s ease, opacity 2.8s ease';
+        const dy = 1000 + Math.random() * 800;
+        shard.style.transform = `translateY(${dy}px)`;
+        shard.style.opacity = 0;
+      }, 50);
+      
   }
-  
-  
+
+  setTimeout(() => {
+    document.querySelectorAll('.shard-canvas').forEach(c => c.remove());
+    video.style.display = 'block';
+  }, 5000);
+}
 
 function captureFrame(video) {
   const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
   const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0);
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   return canvas.toDataURL('image/jpeg');
 }
