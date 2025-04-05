@@ -1,0 +1,74 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    cursor: none;
+  }
+  
+  #video {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+  }
+  
+  #overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+  
+  #cursor-hammer {
+    position: absolute;
+    width: 300px;
+    height: auto;
+    pointer-events: none;
+    z-index: 10;
+  }
+  
+  @keyframes hammer-hit {
+    0% {
+      transform: rotate(0deg);
+    }
+    30% {
+      transform: rotate(-90deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+  
+  .hammer-hit-animation {
+    animation: hammer-hit 0.3s ease-out;
+  }
+  
+  #cam-wrapper {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .video-piece {
+    position: absolute;
+    width: 50vw;
+    height: 50vh;
+    background-size: 100vw 100vh;
+    background-repeat: no-repeat;
+    transition: transform 1.2s ease, opacity 1.2s ease;
+    z-index: 100;
+  }
+  
+  .break-out {
+    transform: translateY(100vh) rotate(20deg);
+    opacity: 0;
+  }
+  
+  .shard-canvas {
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  

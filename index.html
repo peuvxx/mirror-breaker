@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mirror breaker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="cam-wrapper">
+        <video id="video" autoplay playsinline></video>
+      </div>
+      
+  <canvas id="overlay"></canvas>
+
+  <!-- SVG 망치들 숨겨놓기 -->
+  <div id="hammers" style="display: none;">
+    <img src="hammer1.svg" />
+    <img src="hammer2.svg" />
+    <img src="hammer3.svg" />
+    <img src="hammer4.svg" />
+    <img src="hammer5.svg" />
+  </div>
+
+  <img id="cursor-hammer" src="hammer1.svg" />
+
+  <script src="script.js"></script>
+</body>
+</html>
