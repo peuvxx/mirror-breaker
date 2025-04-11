@@ -93,7 +93,8 @@ function drawCrack(x, y) {
 function breakReality() {
   const wrapper = document.getElementById('cam-wrapper');
   const captured = captureFrame(video);
-  const shardCount = Math.floor(Math.random() * 6) + 3;
+  const shardCount = Math.floor(Math.random() * 20) + 20; // 20~39 조각
+
 
   video.style.display = 'none';
 
@@ -145,10 +146,14 @@ function breakReality() {
       
   }
 
+
+  
   setTimeout(() => {
     document.querySelectorAll('.shard-canvas').forEach(c => c.remove());
     video.style.display = 'block';
   }, 5000);
+
+  
 }
 
 function captureFrame(video) {
