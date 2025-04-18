@@ -1,24 +1,36 @@
-// ✅ 전체 JS script.js
 const video = document.getElementById('video');
 const overlay = document.getElementById('overlay');
 const ctx = overlay.getContext('2d');
 const cursor = document.getElementById('cursor-hammer');
 const hammers = Array.from(document.querySelectorAll('#hammers img'));
+const frame = document.getElementById('frame-wrapper');
+const svgTextWrapper = document.getElementById('svg-text-wrapper');
 
 let currentHammerIndex = 0;
+let hitCount = 0;
+let breakThreshold = getRandomThreshold();
 
-// ✅ 캠 시작
+
+
+// 👇 캠 시작
 navigator.mediaDevices.getUserMedia({
-  video: {
-    width: { ideal: 1280 },
-    height: { ideal: 720 },
-    facingMode: 'user'
-  }
-}).then(stream => {
-  video.srcObject = stream;
-});
+    video: {
+      width: { ideal: 1280 },
+      height: { ideal: 720 },
+      facingMode: 'user'
+    }
+  }).then(stream => {
+    video.srcObject = stream;
+  
+    // 👉 얼굴 추적은 캠 시작 후 시작되게
+    Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+      faceapi.nets.faceLandmark68TinyNet.loadFromUri('/models')
+    ]).then(startFaceDetection);
+  });
+  
 
-// ✅ 캔버스 사이즈 맞추기
+// 👇 캔버스 사이즈 맞추기
 function resizeCanvas() {
   overlay.width = window.innerWidth;
   overlay.height = window.innerHeight;
@@ -26,45 +38,21 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// ✅ 마우스 따라다니는 망치
-document.addEventListener('mousemove', (e) => {
+// 👇 망치 따라다니기
+document.addEventListener('mousemove', e => {
   cursor.style.left = `${e.pageX - 50}px`;
   cursor.style.top = `${e.pageY - 50}px`;
 });
 
-// ✅ 스페이스바 누르면 망치 바꾸기
-document.addEventListener('keydown', (e) => {
-  if (e.code === 'Space') {
-    currentHammerIndex = (currentHammerIndex + 1) % hammers.length;
-    cursor.src = hammers[currentHammerIndex].src;
-  }
-});
-
-// ✅ 엔터 누르면 캔버스 리셋
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    ctx.clearRect(0, 0, overlay.width, overlay.height);
-  }
-});
-
-let hitCount = 0;
-let breakThreshold = getRandomThreshold();
-
-function getRandomThreshold() {
-  return Math.floor(Math.random() * 6) + 3;
-}
-
-// ✅ 클릭 시 깨뜨리기
-document.addEventListener('click', (e) => {
+// 👇 깨짐 효과
+document.addEventListener('click', e => {
   const x = e.pageX;
   const y = e.pageY;
 
   drawCrack(x, y);
 
   cursor.classList.add('hammer-hit-animation');
-  setTimeout(() => {
-    cursor.classList.remove('hammer-hit-animation');
-  }, 300);
+  setTimeout(() => cursor.classList.remove('hammer-hit-animation'), 300);
 
   hitCount++;
   if (hitCount >= breakThreshold) {
@@ -94,27 +82,43 @@ function drawCrack(x, y) {
   }
 }
 
+function getRandomThreshold() {
+  return Math.floor(Math.random() * 6) + 3;
+}
+
+// 👇 캔버스 리셋 (Enter 키)
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') ctx.clearRect(0, 0, overlay.width, overlay.height);
+});
+
+// 👇 망치 바꾸기 (스페이스)
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space') {
+    nextHammer();
+  }
+});
+
+function nextHammer() {
+  currentHammerIndex = (currentHammerIndex + 1) % hammers.length;
+  cursor.src = hammers[currentHammerIndex].src;
+}
+function prevHammer() {
+  currentHammerIndex = (currentHammerIndex - 1 + hammers.length) % hammers.length;
+  cursor.src = hammers[currentHammerIndex].src;
+}
+
+// 👇 캠 깨짐 효과
 function breakReality() {
   const wrapper = document.getElementById('cam-wrapper');
   const captured = captureFrame(video);
   const shardCount = Math.floor(Math.random() * 20) + 20;
 
-  // ▶ 캠, 프레임 숨기기 + overlay 초기화
+  // 프레임, 텍스트 숨기기
+  frame.style.display = 'none';
+  if (svgTextWrapper) svgTextWrapper.style.display = 'none';
+
   video.style.display = 'none';
-  document.getElementById('frame-wrapper').style.display = 'none';
-  ctx.clearRect(0, 0, overlay.width, overlay.height);
 
-  // ▶ SVG 텍스트 컨테이너 준비
-  let svgContainer = document.getElementById('svg-text-wrapper');
-  if (!svgContainer) {
-    svgContainer = document.createElement('div');
-    svgContainer.id = 'svg-text-wrapper';
-    svgContainer.innerHTML = `<img src="text.svg" id="svg-text">`;
-    svgContainer.style.display = 'none';
-    document.body.appendChild(svgContainer);
-  }
-
-  // ▶ 파편 생성
   for (let i = 0; i < shardCount; i++) {
     const shard = document.createElement('canvas');
     shard.width = window.innerWidth;
@@ -144,9 +148,7 @@ function breakReality() {
     shardCtx.clip();
 
     const img = new Image();
-    img.onload = () => {
-      shardCtx.drawImage(img, 0, 0, shard.width, shard.height);
-    };
+    img.onload = () => shardCtx.drawImage(img, 0, 0, shard.width, shard.height);
     img.src = captured;
 
     wrapper.appendChild(shard);
@@ -159,24 +161,22 @@ function breakReality() {
     }, 50);
   }
 
-  // ▶ SVG 텍스트 보여주기
+  // 텍스트 SVG 나타내기
   setTimeout(() => {
-    const svg = document.getElementById('svg-text-wrapper');
-    if (svg) svg.style.display = 'flex';
+    if (svgTextWrapper) svgTextWrapper.style.display = 'flex';
   }, 100);
 
-  // ▶ 복구 (8초 후)
+  // 복구
   setTimeout(() => {
     document.querySelectorAll('.shard-canvas').forEach(c => c.remove());
     video.style.display = 'block';
-    document.getElementById('frame-wrapper').style.display = 'block';
+    if (frame) frame.style.display = 'block';
+    if (svgTextWrapper) svgTextWrapper.style.display = 'none';
     ctx.clearRect(0, 0, overlay.width, overlay.height);
-
-    const svgText = document.getElementById('svg-text-wrapper');
-    if (svgText) svgText.remove();
   }, 8000);
 }
 
+// 👇 프레임 캡쳐
 function captureFrame(video) {
   const canvas = document.createElement('canvas');
   canvas.width = window.innerWidth;
@@ -184,4 +184,35 @@ function captureFrame(video) {
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   return canvas.toDataURL('image/jpeg');
+}
+
+// 👇 얼굴 방향 감지 (face-api.js 필요)
+Promise.all([
+  faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+  faceapi.nets.faceLandmark68TinyNet.loadFromUri('/models')
+]).then(startFaceDetection);
+
+function startFaceDetection() {
+  setInterval(async () => {
+    const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks(true);
+    if (!result) return;
+
+    const landmarks = result.landmarks;
+    const nose = landmarks.getNose();
+    const leftEye = landmarks.getLeftEye();
+    const rightEye = landmarks.getRightEye();
+
+    const noseX = nose[3].x;
+    const leftX = leftEye[0].x;
+    const rightX = rightEye[3].x;
+    const faceCenter = (leftX + rightX) / 2;
+
+    const offset = noseX - faceCenter;
+
+    if (offset > 20) {
+      nextHammer();
+    } else if (offset < -20) {
+      prevHammer();
+    }
+  }, 1500); // 1.5초마다 체크
 }
