@@ -5,27 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>mirror breaker</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- face-api.js CDN -->
   <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-
+  <!-- script.js (마지막에 실행) -->
+  <script defer src="script.js"></script>
 </head>
 <body>
-    <div id="cam-wrapper">
-      <video id="video" autoplay muted playsinline></video>
-    </div>
-  
-    <canvas id="overlay"></canvas>
-  
-    <div id="frame-wrapper">
-      <img src="frame.svg" id="frame" />
-    </div>
-  
-    <!-- ...생략 -->
-  </body>
-  
-      
+
+  <div id="cam-wrapper">
+    <video id="video" autoplay muted playsinline></video>
+  </div>
+
   <canvas id="overlay"></canvas>
 
-  <!-- SVG 망치들 숨겨놓기 -->
+  <div id="frame-wrapper">
+    <img src="frame.svg" id="frame" />
+  </div>
+
+  <!-- 망치들 -->
   <div id="hammers" style="display: none;">
     <img src="hammer1.svg" />
     <img src="hammer2.svg" />
@@ -34,9 +31,8 @@
     <img src="hammer5.svg" />
   </div>
 
+  <!-- 커서 망치 -->
   <img id="cursor-hammer" src="hammer1.svg" />
 
-  <script src="script.js"></script>
-  
 </body>
 </html>
