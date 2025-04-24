@@ -30,7 +30,11 @@
     <img src="hammer4.svg" />
     <img src="hammer5.svg" />
   </div>
-
+<!-- z-index를 shard보다 낮게 하거나 pointer-events를 끊으면 해결됨 -->
+<div id="svg-text-wrapper" style="display: none; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; justify-content: center; align-items: center; z-index: 90; pointer-events: none;">
+    <img src="text.svg" style="max-width: 90vw; max-height: 90vh;" />
+  </div>
+  
   <!-- 커서 망치 -->
   <img id="cursor-hammer" src="hammer1.svg" />
 
