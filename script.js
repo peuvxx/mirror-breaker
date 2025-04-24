@@ -67,23 +67,41 @@ document.addEventListener('click', e => {
 });
 
 function drawCrack(x, y) {
-  const crackCount = Math.floor(Math.random() * 10) + 3;
-  for (let i = 0; i < crackCount; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const length = 50 + Math.pow(Math.random(), 0.5) * 450;
-    const controlX = x + Math.cos(angle) * length / 2 + (Math.random() * 90 - 45);
-    const controlY = y + Math.sin(angle) * length / 2 + (Math.random() * 90 - 45);
-    const endX = x + Math.cos(angle) * length;
-    const endY = y + Math.sin(angle) * length;
-
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 2 + Math.random() * 2;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.quadraticCurveTo(controlX, controlY, endX, endY);
-    ctx.stroke();
+    const maxDepth = 2; // 더 짧게
+    const startCount = Math.floor(Math.random() * 4) + 5; // 5~8줄
+  
+    function drawBranch(startX, startY, depth, angle) {
+      if (depth > maxDepth) return;
+  
+      const length = 30 + Math.random() * 40; // 30~70px
+      const endX = startX + Math.cos(angle) * length;
+      const endY = startY + Math.sin(angle) * length;
+  
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = Math.random() * 2 + 0.5; // 0.5~2.5
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(endX, endY);
+      ctx.stroke();
+  
+      // 분기: 최대 1~2개만
+      const branches = Math.floor(Math.random() * 2) + 1;
+      for (let i = 0; i < branches; i++) {
+        const newAngle = angle + (Math.random() - 0.5) * Math.PI / 2.5;
+        drawBranch(endX, endY, depth + 1, newAngle);
+      }
+    }
+  
+    for (let i = 0; i < startCount; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      drawBranch(x, y, 0, angle);
+    }
   }
-}
+  
+  
+  
+  
+  
 
 function getRandomThreshold() {
   return Math.floor(Math.random() * 6) + 3;
