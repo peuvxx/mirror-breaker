@@ -78,7 +78,7 @@ function drawCrack(x, y) {
       const endY = startY + Math.sin(angle) * length;
   
       ctx.strokeStyle = '#000';
-      ctx.lineWidth = Math.random() * 2 + 0.5; // 0.5~2.5
+      ctx.lineWidth = 2
       ctx.beginPath();
       ctx.moveTo(startX, startY);
       ctx.lineTo(endX, endY);
@@ -98,11 +98,6 @@ function drawCrack(x, y) {
     }
   }
   
-  
-  
-  
-  
-
 function getRandomThreshold() {
   return Math.floor(Math.random() * 6) + 3;
 }
