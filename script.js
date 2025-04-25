@@ -66,28 +66,30 @@ document.addEventListener('click', e => {
   }
 });
 
+
+
 function drawCrack(x, y) {
-    const maxDepth = 2; // 더 짧게
-    const startCount = Math.floor(Math.random() * 4) + 5; // 5~8줄
+    const maxDepth = 2;
+    const startCount = Math.floor(Math.random() * 6) + 7; // 7~12개 (조금 ↑)
   
     function drawBranch(startX, startY, depth, angle) {
       if (depth > maxDepth) return;
   
-      const length = 30 + Math.random() * 40; // 30~70px
+      const length = 60 + Math.random() * 60; // 길이: 60~120
       const endX = startX + Math.cos(angle) * length;
       const endY = startY + Math.sin(angle) * length;
   
       ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2
+      ctx.lineWidth = 3.5
       ctx.beginPath();
       ctx.moveTo(startX, startY);
       ctx.lineTo(endX, endY);
       ctx.stroke();
   
-      // 분기: 최대 1~2개만
+      // 분기: 최대 2개
       const branches = Math.floor(Math.random() * 2) + 1;
       for (let i = 0; i < branches; i++) {
-        const newAngle = angle + (Math.random() - 0.5) * Math.PI / 2.5;
+        const newAngle = angle + (Math.random() - 0.5) * Math.PI / 1.8; // 각도 살짝 덜 퍼짐
         drawBranch(endX, endY, depth + 1, newAngle);
       }
     }
@@ -98,9 +100,12 @@ function drawCrack(x, y) {
     }
   }
   
-function getRandomThreshold() {
-  return Math.floor(Math.random() * 6) + 3;
-}
+  
+  
+  function getRandomThreshold() {
+    return Math.floor(Math.random() * 5) + 4; // 4~8번 클릭
+  }
+  
 
 // Enter 누르면 리셋
 document.addEventListener('keydown', e => {
@@ -179,7 +184,7 @@ function breakReality() {
     if (frame) frame.style.display = 'block';
     if (svgTextWrapper) svgTextWrapper.style.display = 'none';
     ctx.clearRect(0, 0, overlay.width, overlay.height);
-  }, 8000);
+  }, 3000);
 }
 
 function captureFrame(video) {
