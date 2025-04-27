@@ -115,6 +115,8 @@ body, html {
     height: 100%;
     object-fit: cover;
     z-index: 0;
+    transform: scaleX(-1);
+
   }
 
 #svg-text-wrapper {

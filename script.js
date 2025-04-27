@@ -192,7 +192,12 @@ function captureFrame(video) {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   const ctx = canvas.getContext('2d');
+
+  // 💥 거울 반전 적용해서 캡쳐
+  ctx.translate(canvas.width, 0);
+  ctx.scale(-1, 1);
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
   return canvas.toDataURL('image/jpeg');
 }
 
